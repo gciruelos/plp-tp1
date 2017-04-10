@@ -1,6 +1,8 @@
 module NavesEspaciales (Componente(Contenedor, Motor, Escudo, Cañón), NaveEspacial(Módulo, Base), Dirección(Babor, Estribor), TipoPeligro(Pequeño, Grande, Torpedo), Peligro, foldNave, capacidad, poderDeAtaque, puedeVolar, mismoPotencial, mayorCapacidad, transformar, impactar, maniobrar, pruebaDeFuego, componentesPorNivel, dimensiones) where
+import Data.Function
+import Data.List
 
-data Componente = Contenedor | Motor | Escudo | Cañón deriving (Eq, Show)
+data Componente = Contenedor | Motor | Escudo | Cañón deriving (Eq, Show, Enum, Bounded)
 
 data NaveEspacial = Módulo Componente NaveEspacial NaveEspacial | Base Componente deriving Eq
 
@@ -22,35 +24,54 @@ pad :: Int -> String
 pad i = replicate i ' '
 
 --Ejercicio 1
-foldNave :: undefined
-foldNave = undefined
+foldNave :: (Componente -> b -> b -> b ) -> (Componente -> b) -> NaveEspacial -> b
+foldNave f g (Módulo c n1 n2) = f c (foldNave f g n1) (foldNave f g n2)
+foldNave f g (Base c) = g c
 
 --Ejercicio 2
+esComponente :: Componente -> Componente -> Int
+esComponente c1 c2 = if c1 == c2 then 1 else 0
+
+cantidadDeComponentes :: Componente -> NaveEspacial -> Int
+cantidadDeComponentes c = foldNave (\modulo r1 r2 -> (esElComponente modulo) + r1 + r2) esElComponente
+													where esElComponente = esComponente c
+
 capacidad :: NaveEspacial -> Int
-capacidad = undefined
+capacidad = cantidadDeComponentes Contenedor
 
 poderDeAtaque :: NaveEspacial -> Int
-poderDeAtaque = undefined
+poderDeAtaque = cantidadDeComponentes Cañón
 
 puedeVolar :: NaveEspacial -> Bool
-puedeVolar = undefined
+puedeVolar = (>0).(cantidadDeComponentes Motor)
+
+cantidadDeCadaComponente :: NaveEspacial -> [Int]
+cantidadDeCadaComponente n = map ((flip cantidadDeComponentes) n) $ enumFrom (minBound :: Componente)
 
 mismoPotencial :: NaveEspacial -> NaveEspacial -> Bool
-mismoPotencial = undefined
+mismoPotencial = (==) `on` cantidadDeCadaComponente
 
 --Ejercicio 3
-
 mayorCapacidad :: [NaveEspacial] -> NaveEspacial
-mayorCapacidad = undefined
+mayorCapacidad = maximumBy (compare `on` (cantidadDeComponentes Contenedor))
 
 --Ejercicio 4
 
 transformar :: (Componente -> Componente) -> NaveEspacial -> NaveEspacial
-transformar = undefined
+transformar f = foldNave (\modulo r1 r2 -> Módulo (f modulo) r1 r2) (Base . f)
 
 -- Ejercicio 5
+protegidoPorCañón = (>0).(poderDeAtaque)
+
+haceDaño :: Peligro -> NaveEspacial -> Bool
+haceDaño (_, _, Pequeño) = 
+-- TODO: agregar comentario porque no usamos fold
 impactar :: Peligro -> NaveEspacial -> NaveEspacial
-impactar = undefined
+impactar (_, 0, t) (Base c) = Base (if t == Pequeño `and` c == Escudo then c else Contenedor)
+impactar (_, nivel, t) (Base c) = Base c
+impactar (_, 0, t) n@(Módulo c n1 n2) = if protegidoPorCañon n `and`
+impactar (Babor, nivel, t) (Módulo c n1 n2) = Módulo c (impactar (Babor, nivel - 1, t)  n1) n2
+impactar (Estribor, nivel, t) (Módulo c n1 n2) = Módulo c n1 (impactar (Estribor, nivel - 1, t) n2)
 
 -- Ejercicio 6
 maniobrar :: NaveEspacial -> [Peligro] -> NaveEspacial
