@@ -13,7 +13,7 @@ data TipoPeligro = Pequeño | Grande | Torpedo deriving Eq
 type Peligro = (Dirección, Int, TipoPeligro)
 
 instance Show NaveEspacial where
-  show = ("\n" ++) . (padNave 0 0 False)
+  show = ("\n" ++) . padNave 0 0 False
   
 padNave nivel acum doPad (Base c) = (if doPad then pad (4*nivel + acum) else "") ++ show c
 padNave nivel acum doPad (Módulo x i d) = (if doPad then pad (4*nivel + acum) else "") ++ show x ++ 
@@ -33,7 +33,7 @@ esComponente :: Componente -> Componente -> Int
 esComponente c1 c2 = if c1 == c2 then 1 else 0
 
 cantidadDeComponentes :: Componente -> NaveEspacial -> Int
-cantidadDeComponentes c = foldNave (\modulo r1 r2 -> (esElComponente modulo) + r1 + r2) esElComponente
+cantidadDeComponentes c = foldNave (\modulo r1 r2 -> esElComponente modulo + r1 + r2) esElComponente
 													where esElComponente = esComponente c
 
 capacidad :: NaveEspacial -> Int
@@ -43,17 +43,17 @@ poderDeAtaque :: NaveEspacial -> Int
 poderDeAtaque = cantidadDeComponentes Cañón
 
 puedeVolar :: NaveEspacial -> Bool
-puedeVolar = (>0).(cantidadDeComponentes Motor)
+puedeVolar = (> 0) . cantidadDeComponentes Motor
 
 cantidadDeCadaComponente :: NaveEspacial -> [Int]
-cantidadDeCadaComponente n = map ((flip cantidadDeComponentes) n) $ enumFrom (minBound :: Componente)
+cantidadDeCadaComponente n = map (`cantidadDeComponentes` n) $ enumFrom (minBound :: Componente)
 
 mismoPotencial :: NaveEspacial -> NaveEspacial -> Bool
 mismoPotencial = (==) `on` cantidadDeCadaComponente
 
 --Ejercicio 3
 mayorCapacidad :: [NaveEspacial] -> NaveEspacial
-mayorCapacidad = maximumBy (compare `on` (cantidadDeComponentes Contenedor))
+mayorCapacidad = maximumBy (compare `on` cantidadDeComponentes Contenedor)
 
 --Ejercicio 4
 
@@ -61,15 +61,15 @@ transformar :: (Componente -> Componente) -> NaveEspacial -> NaveEspacial
 transformar f = foldNave (\modulo r1 r2 -> Módulo (f modulo) r1 r2) (Base . f)
 
 -- Ejercicio 5
-protegidoPorCañón = (>0).(poderDeAtaque)
+protegidoPorCañón = (> 0) . poderDeAtaque
 
 haceDaño :: Peligro -> NaveEspacial -> Bool
-haceDaño (_, _, Pequeño) = 
+--haceDaño (_, _, Pequeño) = 
 -- TODO: agregar comentario porque no usamos fold
 impactar :: Peligro -> NaveEspacial -> NaveEspacial
 impactar (_, 0, t) (Base c) = Base (if t == Pequeño `and` c == Escudo then c else Contenedor)
 impactar (_, nivel, t) (Base c) = Base c
-impactar (_, 0, t) n@(Módulo c n1 n2) = if protegidoPorCañon n `and`
+--impactar (_, 0, t) n@(Módulo c n1 n2) = if protegidoPorCañon n `and`
 impactar (Babor, nivel, t) (Módulo c n1 n2) = Módulo c (impactar (Babor, nivel - 1, t)  n1) n2
 impactar (Estribor, nivel, t) (Módulo c n1 n2) = Módulo c n1 (impactar (Estribor, nivel - 1, t) n2)
 
