@@ -1,4 +1,6 @@
 module NavesEspaciales (Componente(Contenedor, Motor, Escudo, Cañón), NaveEspacial(Módulo, Base), Dirección(Babor, Estribor), TipoPeligro(Pequeño, Grande, Torpedo), Peligro, foldNave, capacidad, poderDeAtaque, puedeVolar, mismoPotencial, mayorCapacidad, transformar, impactar, maniobrar, pruebaDeFuego, componentesPorNivel, dimensiones) where
+
+import FuncionesAuxiliares
 import Data.Function
 import Data.List
 
@@ -17,15 +19,16 @@ instance Show NaveEspacial where
   
 padNave nivel acum doPad (Base c) = (if doPad then pad (4*nivel + acum) else "") ++ show c
 padNave nivel acum doPad (Módulo x i d) = (if doPad then pad (4*nivel + acum) else "") ++ show x ++ 
-					  pad 4 ++ padNave (nivel+1) (acum+l) False i ++ "\n" ++
-					  padNave (nivel+1) (acum+l) True d where l = length $ show x
+                      pad 4 ++ padNave (nivel+1) (acum+l) False i ++ "\n" ++
+                      padNave (nivel+1) (acum+l) True d where l = length $ show x
 
 pad :: Int -> String
 pad i = replicate i ' '
 
 --Ejercicio 1
 foldNave :: (Componente -> b -> b -> b ) -> (Componente -> b) -> NaveEspacial -> b
-foldNave f g (Módulo c n1 n2) = f c (foldNave f g n1) (foldNave f g n2)
+--foldNave f g (Módulo c n1 n2) = f c (foldNave f g n1) (foldNave f g n2)
+foldNave f g (Módulo c n1 n2) = on (f c) (foldNave f g) n1 n2
 foldNave f g (Base c) = g c
 
 --Ejercicio 2
@@ -34,7 +37,7 @@ esComponente c1 c2 = if c1 == c2 then 1 else 0
 
 cantidadDeComponentes :: Componente -> NaveEspacial -> Int
 cantidadDeComponentes c = foldNave (\modulo r1 r2 -> esElComponente modulo + r1 + r2) esElComponente
-													where esElComponente = esComponente c
+                                                    where esElComponente = esComponente c
 
 capacidad :: NaveEspacial -> Int
 capacidad = cantidadDeComponentes Contenedor
@@ -53,21 +56,21 @@ mismoPotencial = (==) `on` cantidadDeCadaComponente
 
 --Ejercicio 3
 mayorCapacidad :: [NaveEspacial] -> NaveEspacial
-mayorCapacidad = maximumBy (compare `on` cantidadDeComponentes Contenedor)
+mayorCapacidad = maximumBy (compare `on` capacidad)
 
 --Ejercicio 4
 
 transformar :: (Componente -> Componente) -> NaveEspacial -> NaveEspacial
-transformar f = foldNave (\modulo r1 r2 -> Módulo (f modulo) r1 r2) (Base . f)
+transformar f = foldNave (Módulo . f) (Base . f)
 
 -- Ejercicio 5
 protegidoPorCañón = (> 0) . poderDeAtaque
 
-haceDaño :: Peligro -> NaveEspacial -> Bool
+--haceDaño :: Peligro -> NaveEspacial -> Bool
 --haceDaño (_, _, Pequeño) = 
 -- TODO: agregar comentario porque no usamos fold
 impactar :: Peligro -> NaveEspacial -> NaveEspacial
-impactar (_, 0, t) (Base c) = Base (if t == Pequeño `and` c == Escudo then c else Contenedor)
+impactar (_, 0, t) (Base c) = Base (if t == Pequeño && c == Escudo then c else Contenedor)
 impactar (_, nivel, t) (Base c) = Base c
 --impactar (_, 0, t) n@(Módulo c n1 n2) = if protegidoPorCañon n `and`
 impactar (Babor, nivel, t) (Módulo c n1 n2) = Módulo c (impactar (Babor, nivel - 1, t)  n1) n2
@@ -82,8 +85,18 @@ pruebaDeFuego :: [Peligro] -> [NaveEspacial] -> [NaveEspacial]
 pruebaDeFuego = undefined
 
 -- Ejercicio 8
+
+componentesEnCadaNivel :: NaveEspacial -> [Int]
+--componentesEnCadaNivel = foldNave (\m l -> (1 :) . zipMaxWith (+) 0 l) (const [1])
+componentesEnCadaNivel = foldNave (const $ (1 :) .|.. zipMaxWith (+) 0) (const [1])
+
+--altura Base Motor == 1...segun la descripcion del problema es lo que tiene que dar
+--altura = foldNave (\c alt1 alt2 -> 1 + max alt1 alt2) (const 1)
+altura = foldNave (const $ (1 +) .|.. max) (const 1)
+
+--Tira excepcion si te pasas de la lista...hay que ver que tirar en dicho caso (0, Nothing, excepcion?)
 componentesPorNivel :: NaveEspacial -> Int -> Int
-componentesPorNivel = undefined
+componentesPorNivel n = (componentesEnCadaNivel n !!)
 
 dimensiones :: NaveEspacial -> (Int, Int)
-dimensiones = undefined
+dimensiones = on2 ( , ) altura (maximum . componentesEnCadaNivel)
