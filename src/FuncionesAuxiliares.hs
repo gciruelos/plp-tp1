@@ -6,7 +6,7 @@ on2 :: (b -> c -> d) -> (a -> b) -> (a -> c) -> a -> d
 on2 op f g x = f x `op` g x
 
 (.|..) :: (c -> d) -> (a -> b -> c) -> a -> b -> d
-(.|..) f g x y = f $ g x y
+(.|..) = (.) . (.)
 
 --se podria hacer todavia mas general con signatura 
 --zipMaxWith' :: (a -> b -> c) -> a -> b -> [a] -> [b] -> [c]
