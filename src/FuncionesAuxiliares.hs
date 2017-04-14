@@ -9,7 +9,8 @@ on2 op f g x = f x `op` g x
 (.|..) = (.) . (.)
 
 padD :: a -> Int -> [a] -> [a]
-padD a n s = s ++ replicate (n - length s) a   -- si n < 0, replicate n _ == []
+padD a n s = s ++ replicate (n - length s) a   
+-- si n < 0, replicate n _ == []
 
 --se podria hacer todavia mas general con signatura
 --zipMaxWith' :: (a -> b -> c) -> a -> b -> [a] -> [b] -> [c]
@@ -17,3 +18,6 @@ padD a n s = s ++ replicate (n - length s) a   -- si n < 0, replicate n _ == []
 zipMaxWith :: (a -> a -> b) -> a -> [a] -> [a] -> [b]
 zipMaxWith f b xs ys = (zipWith f `on` padD b maxL) xs ys
                         where maxL = (max `on` length) xs ys
+
+índiceODefault :: a -> [a] -> Int ->  a
+índiceODefault a l ind = if ind >= length l then a else l !! ind

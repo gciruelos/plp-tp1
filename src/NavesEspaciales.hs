@@ -132,9 +132,6 @@ pruebaDeFuego peligros = filter (puedeVolar . (flip maniobrar peligros))
 
 -- Ejercicio 8
 
-índiceODefault :: a -> [a] -> Int ->  a
-índiceODefault a l ind = if ind >= length l then a else l !! ind
-
 componentesPorNivel :: NaveEspacial -> Int -> Int
 componentesPorNivel n = índiceODefault 0 $ componentesEnCadaNivel n
 
