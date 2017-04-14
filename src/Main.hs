@@ -89,34 +89,78 @@ testsEj3 = test [
   0 ~=? 0 --Cambiar esto por tests verdaderos.
   ]
 
-testsEj4 = test [
-  0 ~=? 0 --Cambiar esto por tests verdaderos.
-  ]
+rotarComponentes :: Componente -> Componente
+rotarComponentes Contenedor = Motor
+rotarComponentes Motor = Escudo
+rotarComponentes Escudo = Cañón
+rotarComponentes Cañón = Contenedor
 
-testsEj5 = test [
-  0 ~=? 0 --Cambiar esto por tests verdaderos.
+testsEj4 = test [
+  nave9 ~=? transformar id nave9,
+  nave8 ~=? transformar id nave8,
+  tresCañones ~=? transformar (const Cañón) puroContenedor,
+  tresCañones ~=? transformar (const Cañón) escudoSinCañon,
+  tresCañones ~=? transformar (const Cañón) puroContenedor,
+  puroContenedor ~=? transformar rotarComponentes tresCañones,
+  (Módulo Motor (Base Motor) (Base Contenedor)) ~=?
+      transformar rotarComponentes otroCañon
   ]
 
 -- destruye solo el subárbol izquierdo del subárbol izquierdo.
-nave9postManiobrar1 = Módulo Escudo
+nave9postImpactar1 = Módulo Escudo
       (Módulo Escudo (Base Contenedor)
                      (Módulo Motor (Base Contenedor) (Base Motor)))
       (Módulo Escudo (Módulo Contenedor (Base Motor) (Base Contenedor))
                      (Módulo Escudo (Base Cañón) (Base Escudo)))
 
 -- destruye todo el subárbol izquierdo.
-nave9postManiobrar2 = Módulo Escudo
+nave9postImpactar2 = Módulo Escudo
       (Base Contenedor)
       (Módulo Escudo (Módulo Contenedor (Base Motor) (Base Contenedor))
                      (Módulo Escudo (Base Cañón) (Base Escudo)))
 
+nave9postImpactar3 = Módulo Escudo
+      (Base Contenedor)
+      (Módulo Escudo (Módulo Contenedor (Base Contenedor) (Base Contenedor))
+                     (Módulo Escudo (Base Cañón) (Base Escudo)))
+
+nave9postImpactar4 = Módulo Escudo
+      (Base Contenedor)
+      (Módulo Escudo (Base Contenedor)
+                     (Módulo Escudo (Base Cañón) (Base Escudo)))
+
+nave9postImpactar5 = Módulo Escudo
+      (Base Contenedor)
+      (Módulo Escudo (Base Contenedor)
+                     (Módulo Escudo (Base Contenedor) (Base Escudo)))
+
+
+impacto1a, impacto1b, impacto2, impacto3a, impacto3b, impacto4, impacto5,
+  impacto6, impacto7:: Peligro
+impacto1a = (Babor, 0, Grande)
+impacto1b = (Estribor,0,Pequeño)
+impacto2 = (Babor,2,Torpedo)
+impacto3a = (Estribor,0,Pequeño)
+impacto3b = (Babor, 1, Grande)
+impacto4 = (Babor, 3, Pequeño)
+impacto5 = (Estribor, 2, Grande)
+impacto6 = (Babor, 2, Pequeño)
+impacto7 = (Babor, 3, Grande)
+
+testsEj5 = test [
+  nave9 ~=? impactar impacto1b nave9,
+  nave9postImpactar1 ~=? impactar impacto2 nave9,
+  nave9postImpactar2 ~=? impactar impacto3b nave9postImpactar1,
+  nave9postImpactar3 ~=? impactar impacto4 nave9postImpactar2,
+  nave9postImpactar3 ~=? impactar impacto5 nave9postImpactar3,
+  nave9postImpactar4 ~=? impactar impacto6 nave9postImpactar3,
+  nave9postImpactar5 ~=? impactar impacto7 nave9postImpactar4
+  ]
+
+
 testsEj6 = test [
-  nave9postManiobrar1 ~=?
-      maniobrar nave9
-                [(Babor, 0, Grande),(Babor,2,Torpedo),(Estribor,0,Pequeño)],
-  nave9postManiobrar2 ~=?
-      maniobrar nave9
-                [(Estribor,0,Pequeño),(Babor,2,Torpedo),(Babor, 1, Grande)]
+  nave9postImpactar1 ~=? maniobrar nave9 [impacto1a, impacto2, impacto3a],
+  nave9postImpactar2 ~=? maniobrar nave9 [impacto1b, impacto2, impacto3b]
   ]
 
 testsEj7 = test [
