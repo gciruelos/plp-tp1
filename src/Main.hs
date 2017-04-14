@@ -16,8 +16,10 @@ nave6 = Módulo Contenedor nave4 nave1
 nave7 = Módulo Contenedor nave1 nave5
 nave8 = Módulo Contenedor nave1 nave6
 nave9 = Módulo Escudo
-      (Módulo Escudo (Módulo Escudo (Base Escudo) (Base Cañón)) (Módulo Motor (Base Contenedor) (Base Motor)))
-      (Módulo Escudo (Módulo Contenedor (Base Motor) (Base Contenedor)) (Módulo Escudo (Base Cañón) (Base Escudo)))
+      (Módulo Escudo (Módulo Escudo (Base Escudo) (Base Cañón))
+                     (Módulo Motor (Base Contenedor) (Base Motor)))
+      (Módulo Escudo (Módulo Contenedor (Base Motor) (Base Contenedor))
+                     (Módulo Escudo (Base Cañón) (Base Escudo)))
 
 soloUnMotor = Base Motor
 puroContenedor = Módulo Contenedor (Base Contenedor) (Base Contenedor)
@@ -72,7 +74,10 @@ testsEj6 = test [
   ]
 
 testsEj7 = test [
-  [nave1,nave3,nave9] ~=? pruebaDeFuego [(Babor,1,Grande),(Babor,2,Torpedo),(Estribor, 1, Pequeño)] [nave1,nave2,nave3,nave4,nave5,nave6,nave7,nave8,nave9]
+  [nave1,nave3,nave9] ~=?
+         pruebaDeFuego
+                 [(Babor,1,Grande),(Babor,2,Torpedo),(Estribor, 1, Pequeño)]
+                 [nave1,nave2,nave3,nave4,nave5,nave6,nave7,nave8,nave9]
   ]
 
 testsEj8 = test [
