@@ -54,7 +54,35 @@ allTests = test [
 
 testsEj2 = test [
   0 ~=? capacidad soloUnMotor,
-  3 ~=? capacidad puroContenedor
+  3 ~=? capacidad puroContenedor,
+  0 ~=? capacidad nave3,
+  1 ~=? capacidad nave4,
+
+  0 ~=? poderDeAtaque nave1,
+  1 ~=? poderDeAtaque nave2,
+  1 ~=? poderDeAtaque nave3,
+  2 ~=? poderDeAtaque nave4,
+  2 ~=? poderDeAtaque nave5,
+  0 ~=? poderDeAtaque escudoSinCañon,
+
+  False ~=? puedeVolar contenedorSolo,
+  True ~=? puedeVolar nave1,
+  True ~=? puedeVolar nave2,
+  True ~=? puedeVolar nave3,
+  True ~=? puedeVolar nave4,
+  True ~=? puedeVolar nave5,
+  True ~=? puedeVolar nave6,
+  True ~=? puedeVolar nave7,
+  False ~=? puedeVolar tresCañones,
+  False ~=? puedeVolar puroContenedor,
+  False ~=? puedeVolar contenedorYCañon,
+
+  True ~=? mismoPotencial nave9 nave9,
+  True ~=? mismoPotencial nave2 nave3,
+  True ~=? mismoPotencial nave4 nave5,
+  True ~=? mismoPotencial nave6 nave7,
+  False ~=? mismoPotencial nave6 nave9,
+  False ~=? mismoPotencial nave1 nave9
   ]
 
 testsEj3 = test [
@@ -69,8 +97,26 @@ testsEj5 = test [
   0 ~=? 0 --Cambiar esto por tests verdaderos.
   ]
 
+-- destruye solo el subárbol izquierdo del subárbol izquierdo.
+nave9postManiobrar1 = Módulo Escudo
+      (Módulo Escudo (Base Contenedor)
+                     (Módulo Motor (Base Contenedor) (Base Motor)))
+      (Módulo Escudo (Módulo Contenedor (Base Motor) (Base Contenedor))
+                     (Módulo Escudo (Base Cañón) (Base Escudo)))
+
+-- destruye todo el subárbol izquierdo.
+nave9postManiobrar2 = Módulo Escudo
+      (Base Contenedor)
+      (Módulo Escudo (Módulo Contenedor (Base Motor) (Base Contenedor))
+                     (Módulo Escudo (Base Cañón) (Base Escudo)))
+
 testsEj6 = test [
-  0 ~=? 0 --Cambiar esto por tests verdaderos.
+  nave9postManiobrar1 ~=?
+      maniobrar nave9
+                [(Babor, 0, Grande),(Babor,2,Torpedo),(Estribor,0,Pequeño)],
+  nave9postManiobrar2 ~=?
+      maniobrar nave9
+                [(Estribor,0,Pequeño),(Babor,2,Torpedo),(Babor, 1, Grande)]
   ]
 
 testsEj7 = test [
@@ -113,8 +159,3 @@ testsEj8 = test [
 
   (4,6) ~=? (dimensiones $ maniobrar nave9 [(Babor,1,Grande),(Babor,2,Torpedo)])
   ]
-
-
---Ejemplos de referencia para maniobrar:	
---maniobrar nave9 [(Babor, 0, Grande),(Babor,2,Torpedo),(Estribor,0,Pequeño)] destruye solo el subárbol izquierdo del subárbol izquierdo.
---maniobrar nave9 [(Estribor,0,Pequeño),(Babor,2,Torpedo),(Babor, 1, Grande)] destruye todo el subárbol izquierdo.

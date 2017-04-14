@@ -1,4 +1,4 @@
-module FuncionesAuxiliares where 
+module FuncionesAuxiliares where
 import Data.Function
 import Data.List
 
@@ -11,7 +11,7 @@ on2 op f g x = f x `op` g x
 padD :: a -> Int -> [a] -> [a]
 padD a n s = s ++ replicate (n - length s) a   -- si n < 0, replicate n _ == []
 
---se podria hacer todavia mas general con signatura 
+--se podria hacer todavia mas general con signatura
 --zipMaxWith' :: (a -> b -> c) -> a -> b -> [a] -> [b] -> [c]
 --pero creo que no vale la pena, y asi evitamos repetir el caso base
 zipMaxWith :: (a -> a -> b) -> a -> [a] -> [a] -> [b]

@@ -88,16 +88,19 @@ transformar :: (Componente -> Componente) -> NaveEspacial -> NaveEspacial
 transformar f = foldNave (Módulo . f) (Base . f)
 
 -- Ejercicio 5
+protegidoPorCañón :: NaveEspacial -> Bool
 protegidoPorCañón = (> 0) . poderDeAtaque
 
-esEscudo (Base c) = c == Escudo
-esEscudo (Módulo c _ _) = c == Escudo
+raízEsEscudo :: NaveEspacial -> Bool
+raízEsEscudo (Base c) = c == Escudo
+raízEsEscudo (Módulo c _ _) = c == Escudo
 
+postImpacto :: NaveEspacial
 postImpacto = Base Contenedor
 
 resultadoDelImpacto :: TipoPeligro -> NaveEspacial -> NaveEspacial
-resultadoDelImpacto Pequeño n = if esEscudo n then n else postImpacto
-resultadoDelImpacto Grande n = if esEscudo n && protegidoPorCañón n
+resultadoDelImpacto Pequeño n = if raízEsEscudo n then n else postImpacto
+resultadoDelImpacto Grande n = if raízEsEscudo n && protegidoPorCañón n
                                then n else postImpacto
 resultadoDelImpacto Torpedo _ = postImpacto
 
@@ -122,7 +125,8 @@ maniobrar nave = foldl (flip impactar) nave
 
 -- Ejercicio 7
 pruebaDeFuego :: [Peligro] -> [NaveEspacial] -> [NaveEspacial]
-pruebaDeFuego peligros = filter (puedeVolar.(flip maniobrar peligros))
+-- pruebaDeFuego ps ns = [n | n<-ns , puedeVolar (maniobrar n ps)]
+pruebaDeFuego peligros = filter (puedeVolar . (flip maniobrar peligros))
 
 -- Ejercicio 8
 
