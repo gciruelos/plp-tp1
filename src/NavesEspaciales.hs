@@ -48,9 +48,11 @@ foldNave f g (Módulo c n1 n2) = on (f c) (foldNave f g) n1 n2
 foldNave f g (Base c) = g c
 
 --Utilidades que vamos a usar después
---altura Base Motor == 1.
---altura = foldNave (\c alt1 alt2 -> 1 + max alt1 alt2) (const 1)
-altura = foldNave (const $ (1 +) .|.. max) (const 1)
+componentesEnCadaNivel :: NaveEspacial -> [Int]
+componentesEnCadaNivel = foldNave (const $ (1 :) .|.. zipMaxWith (+) 0)
+                                  (const [1])
+
+altura = length . componentesEnCadaNivel
 
 --Ejercicio 2
 esComponente :: Componente -> Componente -> Int
@@ -130,17 +132,11 @@ pruebaDeFuego peligros = filter (puedeVolar . (flip maniobrar peligros))
 
 -- Ejercicio 8
 
-componentesEnCadaNivel :: NaveEspacial -> [Int]
---componentesEnCadaNivel = foldNave (\m l -> (1 :) . zipMaxWith (+) 0 l)
---                                  (const [1])
-componentesEnCadaNivel = foldNave (const $ (1 :) .|.. zipMaxWith (+) 0)
-                                  (const [1])
-
 índiceODefault :: a -> [a] -> Int ->  a
 índiceODefault a l ind = if ind >= length l then a else l !! ind
 
 componentesPorNivel :: NaveEspacial -> Int -> Int
-componentesPorNivel n = (índiceODefault 0) (componentesEnCadaNivel n)
+componentesPorNivel n = índiceODefault 0 $ componentesEnCadaNivel n
 
 dimensiones :: NaveEspacial -> (Int, Int)
 dimensiones = on2 ( , ) altura (maximum . componentesEnCadaNivel)
