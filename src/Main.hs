@@ -81,6 +81,36 @@ testsEj7 = test [
   ]
 
 testsEj8 = test [
+  1 ~=? (componentesPorNivel nave1 0),
+  0 ~=? (componentesPorNivel nave1 1),
+
+  1 ~=? (componentesPorNivel nave2 0),
+  2 ~=? (componentesPorNivel nave2 1),
+  0 ~=? (componentesPorNivel nave2 2),
+
+  1 ~=? (componentesPorNivel nave3 0),
+  2 ~=? (componentesPorNivel nave3 1),
+  0 ~=? (componentesPorNivel nave3 2),
+
+  1 ~=? (componentesPorNivel nave4 0),
+  2 ~=? (componentesPorNivel nave4 1),
+  4 ~=? (componentesPorNivel nave4 2),
+  0 ~=? (componentesPorNivel nave4 3),
+
+  1 ~=? (componentesPorNivel nave8 0),
+  2 ~=? (componentesPorNivel nave8 1),
+  2 ~=? (componentesPorNivel nave8 2),
+  2 ~=? (componentesPorNivel nave8 3),
+  4 ~=? (componentesPorNivel nave8 4),
+  0 ~=? (componentesPorNivel nave8 5),
+
+  1 ~=? (componentesPorNivel nave9 0),
+  2 ~=? (componentesPorNivel nave9 1),
+  4 ~=? (componentesPorNivel nave9 2),
+  8 ~=? (componentesPorNivel nave9 3),
+  0 ~=? (componentesPorNivel nave9 4),
+  0 ~=? (componentesPorNivel nave9 5),
+
   (4,6) ~=? (dimensiones $ maniobrar nave9 [(Babor,1,Grande),(Babor,2,Torpedo)])
   ]
 
