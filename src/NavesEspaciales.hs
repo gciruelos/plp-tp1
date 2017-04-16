@@ -112,13 +112,14 @@ impactar (_, 0, t) (Base c) = Base
 impactar (_, nivel, t) (Base c) = Base c
 impactar (_, 0, t) m@(Módulo c n1 n2) = resultadoDelImpacto t m
 impactar (Babor, nivel, t) (Módulo c n1 n2) =
+        --altura (Base c) == 1, por eso comparamos con nivel en vez de nivel - 1
         if altura n1 >= nivel
         then Módulo c (impactar (Babor, nivel - 1, t) n1) n2
         else Módulo c n1 (impactar (Babor, nivel - 1, t) n2)
 impactar (Estribor, nivel, t) (Módulo c n1 n2) =
         if altura n2 >= nivel
         then Módulo c n1 (impactar (Estribor, nivel - 1, t) n2)
-        else Módulo c (impactar (Babor, nivel - 1, t) n1) n2
+        else Módulo c (impactar (Estribor, nivel - 1, t) n1) n2
 
 -- Ejercicio 6
 maniobrar :: NaveEspacial -> [Peligro] -> NaveEspacial

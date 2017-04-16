@@ -6,6 +6,8 @@ import Data.List
 
 
 --Naves para pruebas:
+espejo (Base c) = Base c
+espejo (Módulo c n1 n2) = Módulo c (espejo n2) (espejo n1)
 contenedorSolo = Base Contenedor
 nave1 = Base Motor
 nave2 = Módulo Cañón (Base Escudo) (Base Motor)
@@ -138,6 +140,8 @@ nave9postImpactar5 = Módulo Escudo
                      (Módulo Escudo (Base Contenedor) (Base Escudo)))
 
 
+espejoI (Babor, x, y) = (Estribor, x, y)
+espejoI (Estribor, x, y) = (Babor, x, y)
 impacto1a, impacto1b, impacto2, impacto3a, impacto3b, impacto4, impacto5,
   impacto6, impacto7:: Peligro
 impacto1a = (Babor, 0, Grande)
@@ -151,6 +155,9 @@ impacto6 = (Babor, 2, Pequeño)
 impacto7 = (Babor, 3, Grande)
 
 testsEj5 = test [
+   impactar impacto1b nave9 ~=? espejo (impactar (espejoI impacto1b) (espejo nave9)),
+   impactar impacto2 desbalanceado ~=? espejo (impactar (espejoI impacto2) (espejo desbalanceado)),
+   impactar impacto6 nave9 ~=? espejo (impactar (espejoI impacto6) (espejo nave9)),
   nave9 ~=? impactar impacto1b nave9,
   nave9postImpactar1 ~=? impactar impacto2 nave9,
   nave9postImpactar2 ~=? impactar impacto3b nave9postImpactar1,
