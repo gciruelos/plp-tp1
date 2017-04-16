@@ -136,7 +136,7 @@ impactar (Estribor, nivel, t) (Módulo c n1 n2) =
 -- Es importante que sea foldl así la operación se asocia de la siguiente
 -- manera:
 --   maniobrar nave [p1, ..., pn] =
-  --     impactar (... (impactar p1 nave) ...) pn
+--     impactar (... (impactar p1 nave) ...) pn
 maniobrar :: NaveEspacial -> [Peligro] -> NaveEspacial
 maniobrar nave = foldl (flip impactar) nave
 
