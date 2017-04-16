@@ -11,6 +11,7 @@ import FuncionesAuxiliares
 import Data.Function
 import Data.List
 
+-- Derivamos Enum y Bounded para listar todos los valores posibles de Componente
 data Componente = Contenedor | Motor | Escudo | Cañón
                 deriving (Eq, Show, Enum, Bounded)
 
@@ -44,12 +45,25 @@ pad i = replicate i ' '
 --   on f g x y = f (g x) (g y)
 
 -- Ejercicio 1
+-- f es la función que se aplica en el caso recursivo (Módulo) y g, en el caso base
 foldNave :: (Componente -> b -> b -> b ) -> (Componente -> b)
          -> NaveEspacial -> b
 foldNave f g (Módulo c n1 n2) = on (f c) (foldNave f g) n1 n2
 foldNave f g (Base c) = g c
 
 -- Utilidades que vamos a usar después.
+
+-- zipMaxWith es equivalente a zipWith, pero continúa hasta alcanzar la mayor, en vez de la menor, de las dos longitudes
+-- Al no poder tomar valores de la lista más corta, usa el default provisto (en este caso 0)
+-- 
+-- Devuelve una lista con la cantidad de componentes en cada nivel
+-- En el caso base devuelve la lista [1], representando que esa nave tiene un solo componente
+-- En el caso recursivo, suma la cantidad de componentes de los hijos, nivel a nivel, y les adjunta 1
+--
+-- El uso de const se debe a que no necesitamos el valor del componente
+-- El operador f (.|..) g compone funciones tales que g toma dos argumentos y f uno
+--
+-- Se podría generalizar aún más, pero con devolver la cantidad de componentes en cada nivel nos alcanza para lo que necesitamos
 componentesEnCadaNivel :: NaveEspacial -> [Int]
 componentesEnCadaNivel = foldNave (const $ (1 :) .|.. zipMaxWith (+) 0)
                                   (const [1])
@@ -85,14 +99,30 @@ cantidadDeCadaComponente :: NaveEspacial -> [Int]
 cantidadDeCadaComponente n = map (\c -> cantidadDeComponentes c n) $
                                      enumFrom (minBound :: Componente)
 
+-- Generamos la lista de cantidades de cada componente para ambas naves
+-- y comprobamos que sean iguales
 mismoPotencial :: NaveEspacial -> NaveEspacial -> Bool
 mismoPotencial = (==) `on` cantidadDeCadaComponente
 
 -- Ejercicio 3
+
+-- Obtenemos el máximo de acuerdo al orden de capacidad
+
+-- Una idea similar sería maximum . map capacidad, pero el resultado
+-- sería la capacidad máxima, no la nave de capacidad máxima
+
+-- La desventaja del approach elegido es que se calcula nuevamente la 
+-- capacidad en cada comparación; una forma más eficiente sería
+-- mayorCapacidad = fst . maximumBy (compare `on` snd) . map (on2 (,) id cantidadDeCadaComponente)
+-- Esta solución emplea la idea del map pero mantiene el valor original--  de la nave junto con su capacidad
+-- Sin embargo, la versión presentada es más simple y fácil de entender
 mayorCapacidad :: [NaveEspacial] -> NaveEspacial
 mayorCapacidad = maximumBy (compare `on` capacidad)
 
 -- Ejercicio 4
+
+-- Generamos nuevamente la nave en cada nivel, aplicando la función al componente.
+-- Misma idea que map f = foldr ((:) . f) []
 transformar :: (Componente -> Componente) -> NaveEspacial -> NaveEspacial
 transformar f = foldNave (Módulo . f) (Base . f)
 
@@ -101,7 +131,7 @@ protegidoPorCañón :: NaveEspacial -> Bool
 protegidoPorCañón = (> 0) . poderDeAtaque
 
 -- Notar que esto no es inducción estructural, si no simplemente una división
--- por casos.
+-- por casos no-recursiva.
 raízEsEscudo :: NaveEspacial -> Bool
 raízEsEscudo (Base c) = c == Escudo
 raízEsEscudo (Módulo c _ _) = c == Escudo
@@ -146,8 +176,21 @@ pruebaDeFuego peligros = filter (puedeVolar . (flip maniobrar peligros))
 
 -- Ejercicio 8
 
+-- componentesEnCadaNivel nos da exactamente lo que buscamos, pero
+-- para todos los niveles. Simplemente indexamos la lista en el
+-- nivel deseado
+
+-- El único detalle es que podrían pedirse los componentes de un nivel
+-- mayor al máximo de la nave; en dicho caso devolvemos 0.
 componentesPorNivel :: NaveEspacial -> Int -> Int
 componentesPorNivel n = índiceODefault 0 $ componentesEnCadaNivel n
 
+-- La altura no es más que la longitud de la lista de 
+-- componentesEnCadaNivel, y el ancho que el valor máximo
+-- Como ya teníamos definida la altura antes, podríamos 
+-- realizar la siguiente implementación
+-- dimensiones = on2 ( , ) altura (maximum . componentesEnCadaNivel)
+-- Esta definición evita "reinventar la rueda" con altura, pero quizás 
+-- reduce un poco la claridad de la definición
 dimensiones :: NaveEspacial -> (Int, Int)
-dimensiones = on2 ( , ) altura (maximum . componentesEnCadaNivel)
+dimensiones = (on2 (,) length maximum) . componentesEnCadaNivel
