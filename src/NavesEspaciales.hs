@@ -39,24 +39,31 @@ padNave nivel acum doPad (Módulo x i d) =
 pad :: Int -> String
 pad i = replicate i ' '
 
+-- Recordar `on`, es una función que vamos a usar seguido:
+--   on :: (b -> b -> c) -> (a -> b) -> a -> a -> c
+--   on f g x y = f (g x) (g y)
 
---Ejercicio 1
+-- Ejercicio 1
 foldNave :: (Componente -> b -> b -> b ) -> (Componente -> b)
          -> NaveEspacial -> b
 foldNave f g (Módulo c n1 n2) = on (f c) (foldNave f g) n1 n2
 foldNave f g (Base c) = g c
 
---Utilidades que vamos a usar después
+-- Utilidades que vamos a usar después.
 componentesEnCadaNivel :: NaveEspacial -> [Int]
 componentesEnCadaNivel = foldNave (const $ (1 :) .|.. zipMaxWith (+) 0)
                                   (const [1])
 
 altura = length . componentesEnCadaNivel
 
---Ejercicio 2
+-- Ejercicio 2
+-- Devolvemos Int en vez de Bool por un tema de conveniencia.
 esComponente :: Componente -> Componente -> Int
 esComponente c1 c2 = if c1 == c2 then 1 else 0
 
+-- Para (Base c) hay que chequear que c sea el componente, y para
+-- (Modulo c n1 n2) hay que chequear que c sea el componente y sumar las
+-- llamadas recursivas de n1 y n2.
 cantidadDeComponentes :: Componente -> NaveEspacial -> Int
 cantidadDeComponentes c = foldNave
                             (\modulo r1 r2 -> esElComponente modulo + r1 + r2)
@@ -72,19 +79,20 @@ poderDeAtaque = cantidadDeComponentes Cañón
 puedeVolar :: NaveEspacial -> Bool
 puedeVolar = (> 0) . cantidadDeComponentes Motor
 
+-- Para cada componente (enumFrom (minBound :: Componente)), llamamos a
+-- cantidadDeComponentes para la nave.
 cantidadDeCadaComponente :: NaveEspacial -> [Int]
-cantidadDeCadaComponente n = map (`cantidadDeComponentes` n) $
+cantidadDeCadaComponente n = map (\c -> cantidadDeComponentes c n) $
                                      enumFrom (minBound :: Componente)
 
 mismoPotencial :: NaveEspacial -> NaveEspacial -> Bool
 mismoPotencial = (==) `on` cantidadDeCadaComponente
 
---Ejercicio 3
+-- Ejercicio 3
 mayorCapacidad :: [NaveEspacial] -> NaveEspacial
 mayorCapacidad = maximumBy (compare `on` capacidad)
 
---Ejercicio 4
-
+-- Ejercicio 4
 transformar :: (Componente -> Componente) -> NaveEspacial -> NaveEspacial
 transformar f = foldNave (Módulo . f) (Base . f)
 
@@ -92,10 +100,13 @@ transformar f = foldNave (Módulo . f) (Base . f)
 protegidoPorCañón :: NaveEspacial -> Bool
 protegidoPorCañón = (> 0) . poderDeAtaque
 
+-- Notar que esto no es inducción estructural, si no simplemente una división
+-- por casos.
 raízEsEscudo :: NaveEspacial -> Bool
 raízEsEscudo (Base c) = c == Escudo
 raízEsEscudo (Módulo c _ _) = c == Escudo
 
+-- La sub-nave después del impacto: Base Contenedor.
 postImpacto :: NaveEspacial
 postImpacto = Base Contenedor
 
@@ -122,6 +133,10 @@ impactar (Estribor, nivel, t) (Módulo c n1 n2) =
         else Módulo c (impactar (Estribor, nivel - 1, t) n1) n2
 
 -- Ejercicio 6
+-- Es importante que sea foldl así la operación se asocia de la siguiente
+-- manera:
+--   maniobrar nave [p1, ..., pn] =
+  --     impactar (... (impactar p1 nave) ...) pn
 maniobrar :: NaveEspacial -> [Peligro] -> NaveEspacial
 maniobrar nave = foldl (flip impactar) nave
 
