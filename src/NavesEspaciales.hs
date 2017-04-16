@@ -43,7 +43,6 @@ pad i = replicate i ' '
 --Ejercicio 1
 foldNave :: (Componente -> b -> b -> b ) -> (Componente -> b)
          -> NaveEspacial -> b
---foldNave f g (Módulo c n1 n2) = f c (foldNave f g n1) (foldNave f g n2)
 foldNave f g (Módulo c n1 n2) = on (f c) (foldNave f g) n1 n2
 foldNave f g (Base c) = g c
 
@@ -127,7 +126,6 @@ maniobrar nave = foldl (flip impactar) nave
 
 -- Ejercicio 7
 pruebaDeFuego :: [Peligro] -> [NaveEspacial] -> [NaveEspacial]
--- pruebaDeFuego ps ns = [n | n<-ns , puedeVolar (maniobrar n ps)]
 pruebaDeFuego peligros = filter (puedeVolar . (flip maniobrar peligros))
 
 -- Ejercicio 8

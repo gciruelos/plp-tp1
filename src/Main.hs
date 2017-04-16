@@ -86,7 +86,10 @@ testsEj2 = test [
   ]
 
 testsEj3 = test [
-  0 ~=? 0 --Cambiar esto por tests verdaderos.
+  nave1 ~=? mayorCapacidad [nave1],
+  contenedorSolo ~=? mayorCapacidad [contenedorSolo, nave1, nave2, nave3],
+  nave9 ~=? mayorCapacidad [contenedorSolo, nave1, nave2, nave3, nave4, nave5, nave6, nave9],
+  puroContenedor ~=? mayorCapacidad [puroContenedor, contenedorYCañon]
   ]
 
 rotarComponentes :: Componente -> Componente
@@ -201,5 +204,12 @@ testsEj8 = test [
   0 ~=? (componentesPorNivel nave9 4),
   0 ~=? (componentesPorNivel nave9 5),
 
+  (1,1) ~=? dimensiones contenedorSolo,
+  (1,1) ~=? dimensiones nave1,
+  (2,2) ~=? dimensiones nave2,
+  (3,4) ~=? dimensiones nave4,
+  (4,4) ~=? dimensiones nave6,
+  (5,4) ~=? dimensiones nave8,
+  (4,8) ~=? dimensiones nave9,
   (4,6) ~=? (dimensiones $ maniobrar nave9 [(Babor,1,Grande),(Babor,2,Torpedo)])
   ]
