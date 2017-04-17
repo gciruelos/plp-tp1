@@ -146,13 +146,14 @@ resultadoDelImpacto Grande n = if raízEsEscudo n && protegidoPorCañón n
                                then n else postImpacto
 resultadoDelImpacto Torpedo _ = postImpacto
 
--- Sólo se debe impactar al nivel más de la izquierda/derecha (dependiendo de la dirección del Peligro);
--- desde un cierto nodo del árbol no podemos conocer más que sus hijos, por lo que no podemos saber si se debe impactar ahí o no.
--- Al realizar recursión explícita, podemos asegurarnos que siempre estamos bajando desde la raíz siempre por 
--- la rama que contiene al nodo a impactar
--- Al foldear esto no es posible, ya que se realiza de una forma "bottom-up" sin poder acceder al padre de un nodo, 
--- ni comprobar si un nodo es la raíz del árbol
-
+-- Sólo se debe impactar al nivel más de la izquierda/derecha (dependiendo de
+-- la dirección del Peligro); desde un cierto nodo del árbol no podemos conocer
+-- más que sus hijos, por lo que no podemos saber si se debe impactar ahí o no.
+-- Al realizar recursión explícita, podemos asegurarnos que siempre estamos
+-- bajando desde la raíz siempre por la rama que contiene al nodo a impactar.
+-- Al foldear esto no es posible, ya que se realiza de una forma "bottom-up"
+-- sin poder acceder al padre de un nodo,  ni comprobar si un nodo es la raíz
+-- del árbol.
 impactar :: Peligro -> NaveEspacial -> NaveEspacial
 impactar (_, 0, t) (Base c) = Base
                         (if t == Pequeño && c == Escudo then c else Contenedor)
