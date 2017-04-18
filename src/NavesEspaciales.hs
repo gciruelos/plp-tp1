@@ -159,15 +159,15 @@ impactar (_, 0, t) (Base c) = Base
                         (if t == Pequeño && c == Escudo then c else Contenedor)
 impactar (_, nivel, t) (Base c) = Base c
 impactar (_, 0, t) m@(Módulo c n1 n2) = resultadoDelImpacto t m
-impactar (Babor, nivel, t) (Módulo c n1 n2) =
+impactar (d, nivel, t) (Módulo c n1 n2) =
         --altura (Base c) == 1, por eso comparamos con nivel en vez de nivel - 1
-        if altura n1 >= nivel
-        then Módulo c (impactar (Babor, nivel - 1, t) n1) n2
-        else Módulo c n1 (impactar (Babor, nivel - 1, t) n2)
-impactar (Estribor, nivel, t) (Módulo c n1 n2) =
-        if altura n2 >= nivel
-        then Módulo c n1 (impactar (Estribor, nivel - 1, t) n2)
-        else Módulo c (impactar (Estribor, nivel - 1, t) n1) n2
+        if atacoIzquierda d nivel n1 n2
+        then Módulo c (impactar (d, nivel - 1, t) n1) n2
+		else Módulo c n1 (impactar (d, nivel - 1, t) n2)
+
+atacoIzquierda :: Dirección -> Int -> NaveEspacial -> NaveEspacial -> Bool
+atacoIzquierda Babor nivel n1 n2 = altura n1 >= nivel
+atacoIzquierda Estribor nivel n1 n2 = altura n2 < nivel
 
 -- Ejercicio 6
 -- Es importante que sea foldl así la operación se asocia de la siguiente
